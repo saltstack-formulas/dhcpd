@@ -75,6 +75,9 @@ subnet {{ subnet }} netmask {{ config.netmask }} {
     {%- if 'failover_peer' in pool %}
     failover peer "{{ pool['failover_peer'] }}";
     {%- endif %}
+    {%- if 'default_lease_time' in pool %}
+    default-lease-time {{ pool.default_lease_time }};
+    {%- endif %}
     {%- if 'max_lease_time' in pool %}
     max-lease-time {{ pool.max_lease_time }};
     {%- endif %}
@@ -88,6 +91,12 @@ subnet {{ subnet }} netmask {{ config.netmask }} {
     {%- endif %}
   }
 {%- endfor %}
+{%- if 'ddns_domainname' in config %}
+  ddns-domainname {{ dquote }}{{ config['ddns_domainname'] }}{{ dquote }};
+{%- endif %}
+{%- if 'ddns_rev_domainname' in config %}
+  ddns-rev-domainname {{ dquote }}{{ config['ddns_rev_domainname'] }}{{ dquote }};
+{%- endif %}
 {%- for host, config in salt['pillar.get']('dhcpd:subnets:{0}:hosts'.format(subnet), {}).items() %}
   {%- filter indent(width=2) %}
 {% include 'dhcpd/files/host.jinja' with context %}
